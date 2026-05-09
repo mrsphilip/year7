@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Year 7 Digital Literacy – Exam Practice</title>
+<style>
+  :root {
+    --bg:       #2C1A0E;
+    --surface:  #3E2314;
+    --card-bg:  #FFF8EF;
+    --card2:    #F5E6D0;
+    --accent:   #8B4513;
+    --accent2:  #A0522D;
+    --gold:     #C8860A;
+    --text:     #1A0A00;
+    --light:    #FFF3E0;
+    --border:   #6B3A1F;
+    --correct:  #2E7D32;
+    --wrong:    #C62828;
+    --tab-act:  #8B4513;
+    --tab-in:   #4E2A10;
+    --muted:    #795548;
+    --shadow:   rgba(0,0,0,0.45);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Georgia, serif;
+    background: var(--bg);
+    color: var(--light);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, #1a0900 0%, #5c2a0a 50%, #8B4513 100%);
+    padding: 28px 20px 18px;
+    text-align: center;
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 4px 20px var(--shadow);
+  }
+  header h1 {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    letter-spacing: 1px;
+    color: #FFE0B2;
+    text-shadow: 2px 2px 6px #000;
+  }
+  header p {
+    color: #FFCC80;
+    margin-top: 6px;
+    font-size: 0.95rem;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: #1A0A00;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin: 4px 3px 0;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 16px 0;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+  }
+  .tab-btn {
+    padding: 11px 28px;
+    border: 2px solid var(--border);
+    background: var(--tab-in);
+    color: #FFCC80;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.4px;
+  }
+  .tab-btn:hover { background: var(--accent); }
+  .tab-btn.active {
+    background: var(--tab-act);
+    color: #FFF8EF;
+    border-bottom: 2px solid var(--tab-act);
+    box-shadow: 0 -3px 10px rgba(200,134,10,0.3);
+  }
+
+  /* ── SECTIONS ── */
+  .section { display: none; padding: 28px 16px 60px; max-width: 860px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* ── SECTION TITLES ── */
+  .section-title {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #FFCC80;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+  .section-sub {
+    text-align: center;
+    color: #BCAAA4;
+    margin-bottom: 28px;
+    font-size: 0.9rem;
+  }
+
+  /* ── FLASHCARD SCENE ── */
+  .flashcard-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  .progress-info {
+    color: #FFCC80;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .scene {
+    width: 100%;
+    max-width: 580px;
+    height: 260px;
+    perspective: 1200px;
+    cursor: pointer;
+  }
+  .card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .scene.flipped .card-inner { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    width: 100%; height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 30px;
+    text-align: center;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+  .card-front {
+    background: linear-gradient(135deg, #6B3A1F 0%, #8B4513 60%, #A0522D 100%);
+    border: 2px solid var(--gold);
+  }
+  .card-back {
+    background: linear-gradient(135deg, #FFF8EF, #F5E6D0);
+    border: 2px solid var(--border);
+    transform: rotateY(180deg);
+    color: var(--text);
+  }
+  .card-label {
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .card-front .card-label { color: #FFCC80; }
+  .card-back .card-label { color: var(--muted); }
+  .card-term {
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    font-weight: 700;
+    color: #FFF8EF;
+    line-height: 1.2;
+  }
+  .card-num {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 0.7rem;
+    color: rgba(255,248,239,0.5);
+    font-weight: 600;
+  }
+  .card-back .card-num { color: rgba(0,0,0,0.25); }
+  .card-def {
+    font-size: 0.97rem;
+    line-height: 1.55;
+    color: #2C1A0E;
+    font-weight: 500;
+  }
+  .card-example {
+    margin-top: 10px;
+    font-size: 0.82rem;
+    color: #6B3A1F;
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .flip-hint {
+    font-size: 0.8rem;
+    color: #BCAAA4;
+    text-align: center;
+  }
+  .card-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-brown {
+    background: var(--accent);
+    color: #FFF8EF;
+    border: 2px solid var(--gold);
+  }
+  .btn-brown:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    color: #FFCC80;
+    border: 2px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--surface); }
+  .btn-gold {
+    background: var(--gold);
+    color: #1A0A00;
+    border: 2px solid #A0700A;
+  }
+  .btn-gold:hover { background: #E09A0A; transform: translateY(-1px); }
+
+  /* Flashcard topic grid */
+  .topic-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .topic-tag {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--surface);
+    color: #FFCC80;
+    border: 1px solid var(--border);
+  }
+
+  /* ── MCQ SECTION ── */
+  .mcq-controls-top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .score-display {
+    background: var(--surface);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #FFCC80;
+    font-weight: 700;
+    display: none;
+  }
+  .score-display.show { display: block; }
+
+  .q-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .q-block.correct { border-color: var(--correct); background: #1B3A1E; }
+  .q-block.wrong   { border-color: var(--wrong);   background: #3A1818; }
+
+  .q-number {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .q-text {
+    font-size: 0.97rem;
+    color: #FFF3E0;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .options { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .options li label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: #F5E6D0;
+    transition: background 0.15s;
+    line-height: 1.4;
+  }
+  .options li label:hover { background: rgba(139,69,19,0.35); }
+  .options li input[type=radio] { margin-top: 3px; accent-color: var(--gold); flex-shrink: 0; }
+  .options li label.correct-lbl { background: rgba(46,125,50,0.4); border-color: #66BB6A; color: #C8E6C9; }
+  .options li label.wrong-lbl   { background: rgba(198,40,40,0.35); border-color: #EF5350; color: #FFCDD2; }
+
+  .q-feedback {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  .q-feedback.show { display: block; }
+  .q-feedback.correct { background: rgba(46,125,50,0.25); color: #A5D6A7; }
+  .q-feedback.wrong   { background: rgba(198,40,40,0.2);  color: #FFCDD2; }
+
+  .mcq-submit {
+    display: flex;
+    justify-content: center;
+    margin: 30px 0 10px;
+  }
+  .topic-divider {
+    text-align: center;
+    color: var(--gold);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 28px 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .topic-divider::before, .topic-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar-wrap { width: 100%; max-width: 580px; }
+  .progress-bar-bg {
+    height: 8px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    padding: 18px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  @media (max-width: 500px) {
+    .scene { height: 300px; }
+    .card-face { padding: 18px 18px; }
+    .card-term { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌐 Year 7 Digital Literacy</h1>
+  <p>Exam Practice – Online Safety, Media Literacy &amp; Digital Wellbeing</p>
+  <div style="margin-top:10px">
+    <span class="badge">50 Flashcards</span>
+    <span class="badge">100 MCQs</span>
+    <span class="badge">6 Topics</span>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('flashcards', this)">🃏 Vocabulary Flashcards</button>
+  <button class="tab-btn" onclick="showTab('mcq', this)">📝 MCQ Quiz</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     FLASHCARDS SECTION
+     ══════════════════════════════════════ -->
+<div id="flashcards" class="section active">
+  <h2 class="section-title">Vocabulary Flashcards</h2>
+  <p class="section-sub">Click a card to flip it and see the definition. Use the arrows to navigate.</p>
+
+  <div class="topic-bar">
+    <span class="topic-tag">📰 Media Literacy</span>
+    <span class="topic-tag">🎣 Phishing & Scams</span>
+    <span class="topic-tag">🔒 Privacy & Safety</span>
+    <span class="topic-tag">⚖️ Digital Wellbeing</span>
+    <span class="topic-tag">💬 Digital Drama</span>
+    <span class="topic-tag">🧠 Online Identity</span>
+  </div>
+
+  <div class="flashcard-wrapper">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="fc-progress" style="width:2%"></div>
+      </div>
+    </div>
+    <div class="progress-info" id="fc-counter">Card 1 of 50</div>
+
+    <div class="scene" id="flashcard-scene" onclick="flipCard()">
+      <div class="card-inner" id="card-inner">
+        <div class="card-face card-front">
+          <span class="card-label">Term</span>
+          <span class="card-num" id="fc-num">1/50</span>
+          <div class="card-term" id="fc-term">Bias</div>
+        </div>
+        <div class="card-face card-back">
+          <span class="card-label">Definition</span>
+          <span class="card-num" id="fc-num2">1/50</span>
+          <div class="card-def" id="fc-def">Showing an unfair preference or prejudice toward one side of a topic without presenting a balanced view.</div>
+          <div class="card-example" id="fc-ex">💡 e.g. A game reviewer who only mentions positives and ignores all flaws is showing bias.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-hint">👆 Click the card to flip • Use arrows to navigate</div>
+
+    <div class="card-controls">
+      <button class="btn btn-outline" onclick="prevCard()">◀ Previous</button>
+      <button class="btn btn-brown" onclick="flipCard()">🔄 Flip</button>
+      <button class="btn btn-outline" onclick="nextCard()">Next ▶</button>
+    </div>
+    <button class="btn btn-gold" onclick="shuffleCards()">🔀 Shuffle Deck</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MCQ SECTION
+     ══════════════════════════════════════ -->
+<div id="mcq" class="section">
+  <h2 class="section-title">Multiple Choice Quiz</h2>
+  <p class="section-sub">100 practice questions – choose the best answer for each. Submit when done to see your score!</p>
+
+  <div class="mcq-controls-top">
+    <button class="btn btn-outline" onclick="resetMCQ()">🔁 Reset Quiz</button>
+    <div class="score-display" id="score-box"></div>
+  </div>
+
+  <div id="mcq-questions"></div>
+
+  <div class="mcq-submit">
+    <button class="btn btn-gold" style="font-size:1.05rem;padding:13px 36px" onclick="submitMCQ()">✅ Submit &amp; Check Answers</button>
+  </div>
+</div>
+
+<footer>Year 7 Digital Literacy Practice &nbsp;|&nbsp; Topics: Media Literacy · Phishing · Privacy · Digital Wellbeing · Digital Drama · Online Identity</footer>
+
+<script>
+// ══════════════════════════════════════
+//  FLASHCARD DATA  (50 cards)
+// ══════════════════════════════════════
+const cards = [
+  // 1-10: Media Literacy
+  { term:"Bias", def:"Showing an unfair preference or prejudice toward one side of a topic without giving a balanced view.", ex:"💡 A game reviewer who only praises positives and ignores every flaw is being biased." },
+  { term:"Corroboration", def:"Confirming whether information is accurate by checking it against multiple trusted sources.", ex:"💡 Checking a school event story on BBC, Sky News, and your local paper to confirm it's true." },
+  { term:"Credible", def:"Trustworthy, reliable, and backed up by evidence, named sources, and a reputable publisher.", ex:"💡 A BBC report with named journalists and factual evidence is credible." },
+  { term:"Fake News", def:"False or deliberately misleading news stories designed to deceive people.", ex:"💡 A website with the headline 'SCHOOL CLOSED FOREVER!' with typos and no author is fake news." },
+  { term:"Misinformation", def:"Incorrect information shared by mistake — the person spreading it doesn't know it's false.", ex:"💡 A friend posts about a snow day they misread from a weather report — that's misinformation." },
+  { term:"Disinformation", def:"False information spread deliberately and intentionally to deceive or mislead people.", ex:"💡 A rival company planting fake news stories to damage a competitor is disinformation." },
+  { term:"Hoax", def:"A trick or fabricated story designed to make people believe something completely untrue.", ex:"💡 A fake Wikipedia page claiming 'drinking water is dangerous' is a hoax." },
+  { term:"Satire", def:"Content that uses humour, irony, or exaggeration to mock or criticise people and events.", ex:"💡 A comedy news site writing 'Government bans all homework' as a joke is satire." },
+  { term:"Biased Content", def:"Information or media that presents only one perspective unfairly, ignoring opposing views.", ex:"💡 An article arguing 'All uniforms should be banned' without mentioning any benefits is biased." },
+  { term:"Editorial", def:"A piece of writing that expresses the personal opinions of the author or publication, not just facts.", ex:"💡 'Schools should ban mobile phones entirely' — this is an editorial opinion, not a news report." },
+
+  // 11-20: Phishing & Scams
+  { term:"Phishing", def:"A scam where criminals pretend to be a trusted person or organisation to trick you into sharing private info.", ex:"💡 A fake 'Instagram' text saying 'Verify your password NOW or your account will be deleted!'" },
+  { term:"Spam", def:"Unwanted bulk messages sent to many people at once, often for advertising or scamming purposes.", ex:"💡 An inbox full of 'Free vacation deals!' emails from unknown senders is spam." },
+  { term:"Internet Scam", def:"A deceptive trick carried out online to steal your money, identity, or personal information.", ex:"💡 'Win a free gaming console! Enter your full name and address to claim your prize.'" },
+  { term:"Urgency", def:"A phishing tactic that pressures you to act immediately without thinking, using panic-inducing language.", ex:"💡 'Your account will be deleted in 10 minutes! Act NOW!' is using urgency as a tactic." },
+  { term:"Too Good to Be True", def:"A phishing clue where an offer is so unrealistically attractive that it's almost certainly a scam.", ex:"💡 A £500 laptop for just £20 with a request for your credit card number is too good to be true." },
+  { term:"Shortened URL", def:"A condensed web link that hides its true destination, often used in scam messages.", ex:"💡 'bit.ly/FreeGiftCard2024' instead of 'www.amazon.co.uk' is a suspicious shortened URL." },
+  { term:"Typos", def:"Spelling and grammar mistakes in a message or website — a common clue that it's a phishing attempt.", ex:"💡 'We need to varify you're accoount details' — typos in an 'official' email signal a scam." },
+  { term:"Password Hint", def:"Security question answers (like a pet's name or mother's maiden name) that scammers use to guess your passwords.", ex:"💡 A contest asking for your pet's name and date of birth is gathering password hints." },
+  { term:"Identity Theft", def:"When someone steals your personal information and uses it to commit fraud or crimes in your name.", ex:"💡 A thief uses your address and phone number to open a fake online shopping account in your name." },
+  { term:"Impersonation", def:"Pretending to be someone else online — either a real person or a trusted organisation — without permission.", ex:"💡 Creating a fake TikTok account using your classmate's name and photos is impersonation." },
+
+  // 21-30: Privacy & Safety
+  { term:"Privacy Settings", def:"Controls on social media and apps that let you decide who can see your profile, posts, and information.", ex:"💡 Setting your Instagram to 'private' so only approved followers can see your stories." },
+  { term:"Netiquette", def:"The unwritten rules of polite, respectful, and considerate behaviour when communicating online.", ex:"💡 Writing 'Thanks for your help!' instead of shouting in all-caps is good netiquette." },
+  { term:"Anonymity", def:"Posting or communicating online without revealing your real identity or personal details.", ex:"💡 Commenting as 'BookLover456' instead of your real name is an example of anonymity." },
+  { term:"Digital Footprint", def:"The permanent trail of data, posts, and information you leave behind through all your online activity.", ex:"💡 Every photo you post, every search you make, every comment you leave adds to your digital footprint." },
+  { term:"Vulnerability Info", def:"Personal information that reveals you are in a dangerous or exposed situation, making you a target.", ex:"💡 Posting 'My parents are away — I'm home alone all weekend!' reveals vulnerability." },
+  { term:"Risky Online Behaviour", def:"Actions online that could put your safety, privacy, or wellbeing in danger.", ex:"💡 Agreeing to meet a stranger from Roblox alone at a park is risky online behaviour." },
+  { term:"Red Flag Feeling", def:"An uncomfortable inner warning feeling that signals something online is unsafe or making you uneasy.", ex:"💡 Feeling nervous and sick when an online contact asks for your school address is a red flag feeling." },
+  { term:"Trusted Adult", def:"A responsible adult — such as a parent, teacher, or guardian — you can safely turn to when something online worries you.", ex:"💡 If you receive a suspicious DM, tell a trusted adult immediately." },
+  { term:"Block", def:"A platform feature that prevents a specific user from contacting you, viewing your profile, or interacting with you.", ex:"💡 Blocking someone who is sending threatening messages stops them from reaching you." },
+  { term:"Report", def:"Flagging harmful, inappropriate, or dangerous content to a platform's moderation team for review.", ex:"💡 Reporting a post that bullies a classmate helps the platform remove the harmful content." },
+
+  // 31-40: Digital Wellbeing
+  { term:"Media Balance", def:"A healthy mix of screen time and offline activities that supports overall wellbeing.", ex:"💡 30 minutes of TikTok followed by an hour of football outside is good media balance." },
+  { term:"Unplugging", def:"Deliberately choosing to stop using screens and spend time doing offline, screen-free activities.", ex:"💡 Reading a physical book or drawing instead of scrolling before bed is unplugging." },
+  { term:"Digital Habit", def:"A regular, repeated pattern of behaviour involving digital devices — either healthy or unhealthy.", ex:"💡 Checking your phone every 2 minutes during family dinner is a negative digital habit." },
+  { term:"Negative Digital Habit", def:"An unhealthy, repeated pattern of screen use that interferes with sleep, relationships, or real-life activities.", ex:"💡 Staying up until midnight scrolling every night is a negative digital habit." },
+  { term:"Digital Wellbeing Plan", def:"A personalised strategy with goals and rules to help you have a healthy and balanced relationship with technology.", ex:"💡 'I will set a 45-min gaming limit and put my phone in another room when done.'" },
+  { term:"Replacement Action", def:"Swapping an unhealthy digital habit for a healthier offline activity.", ex:"💡 Going for a walk instead of scrolling social media after school is a replacement action." },
+  { term:"Screen Time", def:"The total amount of time a person spends using digital devices such as phones, tablets, and computers.", ex:"💡 Three hours of screen time before bed can affect your sleep quality." },
+  { term:"Trusted Peer", def:"A friend or family member you ask to help you stay accountable to your digital wellbeing goals.", ex:"💡 Asking your sister to remind you to put your phone away at dinner is using a trusted peer." },
+  { term:"Affinity Group", def:"An online community of people who share a common interest, identity, or goal.", ex:"💡 An online fan club for your favourite sports team is an affinity group." },
+  { term:"Feelings & Options", def:"A thinking routine for uncomfortable online situations: name the problem, identify your feeling, then brainstorm safe responses.", ex:"💡 'The problem is they're asking for my address. I feel scared. My options: say no, block, tell an adult.'" },
+
+  // 41-50: Digital Identity & Drama
+  { term:"Curating", def:"Carefully selecting, organising, and editing the content you share online to shape how others see you.", ex:"💡 Only posting your best edited photos and deleting blurry ones is curating your digital identity." },
+  { term:"Finsta", def:"A secondary, fake or private social media account used to share more personal content with a small, trusted circle.", ex:"💡 A secret Instagram account for sharing unedited photos with only 3 close friends is a finsta." },
+  { term:"Digital Identity", def:"The way you present yourself and are perceived online through your posts, comments, username, and activity.", ex:"💡 Your profile photo, username, and the content you share all form your digital identity." },
+  { term:"Digital Drama", def:"Online arguments, conflicts, or social tensions that spread rapidly through social media platforms.", ex:"💡 A vague post like 'some people are so selfish' causing a flood of mean comments is digital drama." },
+  { term:"De-escalating", def:"Taking deliberate steps to calm down an online conflict and reduce tension rather than making it worse.", ex:"💡 Saying 'I'm sorry this upset you — let's talk in person' in response to a mean comment is de-escalating." },
+  { term:"Scammer", def:"A person who deliberately tricks others online in order to steal their money, information, or identity.", ex:"💡 Someone sending fake prize emails to harvest personal details is a scammer." },
+  { term:"Public Social Media", def:"Social media content or accounts that are visible to everyone on the internet, not just approved followers.", ex:"💡 A Twitter account with no privacy settings, visible to anyone in the world, is public social media." },
+  { term:"Safe Messaging", def:"Communicating online in a way that protects your personal information, wellbeing, and safety.", ex:"💡 Never sharing your home address or phone number in a chat is part of safe messaging." },
+  { term:"Anonymous Blog", def:"A website or blog where the author does not reveal their real name or identity.", ex:"💡 Writing a review under a username like 'GadgetFan99' instead of your real name is an anonymous blog." },
+  { term:"Credibility Check", def:"The process of evaluating whether an online source, story, or piece of information can actually be trusted.", ex:"💡 Searching for the author's name, checking the publication date, and cross-referencing with other sources is a credibility check." }
+];
+
+// ══════════════════════════════════════
+//  FLASHCARD LOGIC
+// ══════════════════════════════════════
+let currentCard = 0;
+let isFlipped = false;
+let cardOrder = cards.map((_,i)=>i);
+
+function renderCard() {
+  const idx = cardOrder[currentCard];
+  const c = cards[idx];
+  document.getElementById('fc-term').textContent = c.term;
+  document.getElementById('fc-def').textContent  = c.def;
+  document.getElementById('fc-ex').textContent   = c.ex;
+  document.getElementById('fc-num').textContent  = (currentCard+1)+'/50';
+  document.getElementById('fc-num2').textContent = (currentCard+1)+'/50';
+  document.getElementById('fc-counter').textContent = 'Card '+(currentCard+1)+' of 50';
+  document.getElementById('fc-progress').style.width = ((currentCard+1)/50*100)+'%';
+  // Reset flip
+  isFlipped = false;
+  const scene = document.getElementById('flashcard-scene');
+  scene.classList.remove('flipped');
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('flashcard-scene').classList.toggle('flipped', isFlipped);
+}
+
+function nextCard() {
+  currentCard = (currentCard+1) % 50;
+  renderCard();
+}
+function prevCard() {
+  currentCard = (currentCard+49) % 50;
+  renderCard();
+}
+function shuffleCards() {
+  for (let i=cardOrder.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [cardOrder[i],cardOrder[j]]=[cardOrder[j],cardOrder[i]];
+  }
+  currentCard=0;
+  renderCard();
+  document.getElementById('fc-counter').textContent='🔀 Deck shuffled! Card 1 of 50';
+}
+
+renderCard();
+
+// ══════════════════════════════════════
+//  MCQ DATA  (100 questions)
+// ══════════════════════════════════════
+const questions = [
+  // ── SECTION 1: MEDIA LITERACY & EVALUATING INFORMATION (Q1–20) ──
+  { section:"📰 Media Literacy & Evaluating Information",
+    q:"A YouTube channel reviews only the latest smartphones and always gives them 5 stars, never mentioning battery life problems or software bugs. What is this unfair leaning called?",
+    opts:["Corroboration","Satire","Bias","Hoax"], ans:2 },
+  { q:"A friend texts the group chat: 'NO SCHOOL TOMORROW – I saw it on someone's story!' without checking any official source. What should you do before believing or sharing this?",
+    opts:["Share it immediately with the whole year group","Corroborate it by checking the school's official website or app","Post it on your finsta","Accept it as credible news since it came from a friend"], ans:1 },
+  { q:"You check a story about a local sports event on four different reputable news websites, and they all report the exact same facts. What does this confirm?",
+    opts:["The story is definitely biased","The story is a hoax","The story is credible/corroborated","The story is an editorial"], ans:2 },
+  { q:"A news headline screams 'ALL TEACHERS PLAN TO QUIT NEXT WEEK!!!' in all caps. It has no journalist name, no publication date, and several spelling errors. What type of content is this most likely?",
+    opts:["Credible news","Satire","Biased editorial","Fake news"], ans:3 },
+  { q:"A popular comedy website publishes: 'Government officially bans all homework and exams nationwide.' It uses jokes and exaggeration throughout. What type of content is this?",
+    opts:["Fake news","Hoax","Satire","Disinformation"], ans:2 },
+  { q:"An article about school lunches states 'All healthy food is disgusting and no student should ever be forced to eat vegetables' — with no evidence and no counter-arguments. What is this one-sided content?",
+    opts:["Credible","Satirical","Biased","Corroborated"], ans:2 },
+  { q:"A student posts on WhatsApp that 'school starts at 10am tomorrow' because they overheard it incorrectly from another student. They genuinely believe it's true. What type of information is this?",
+    opts:["Disinformation","Misinformation","Satire","Credible news"], ans:1 },
+  { q:"An online post deliberately spreads a false claim that a popular singer 'supports a dangerous group' — the creator knows it's untrue but wants to damage the singer's reputation. What is this called?",
+    opts:["Misinformation","Satire","Hoax","Disinformation"], ans:3 },
+  { q:"A viral social media post claims 'Eating carrots at night causes strange dreams — scientists confirm!' It has no study name, no link, and no author. What is this type of trick called?",
+    opts:["Satire","Hoax","Credible news","Editorial"], ans:1 },
+  { q:"The BBC website reports on a major tennis tournament with named journalists, official statistics, and links to the official tournament website. What one word best describes this content?",
+    opts:["Biased","Credible","Satirical","Misinformation"], ans:1 },
+  { q:"You read a story about a school policy change on an unfamiliar blog. You then confirm the exact same details on four major news sites. What have you done?",
+    opts:["Created a digital footprint","Corroborated the story","Curated your identity","Identified the blog as fake news"], ans:1 },
+  { q:"A news headline reads 'LOCAL SCHOOL BANS ALL PHONES AND WIFI FOREVER!!!' in large capitals with three exclamation marks. What technique might this be using to grab your attention?",
+    opts:["Satire","Corroboration","Shock tactics / fake news emotional manipulation","Credible journalism"], ans:2 },
+  { q:"An article argues 'Social media is absolutely the worst invention in human history' and includes no counter-arguments, balance, or evidence from experts. What type of content is this?",
+    opts:["Corroborated","Credible","Satirical","Biased"], ans:3 },
+  { q:"A website offers a story: 'New study shows eating only cake for a week improves exam results!' but clicking the link takes you to a cake company's product page. What does this suggest?",
+    opts:["The content is credible and has been verified","The content has been corroborated","The content is likely biased or fake — it's an advertisement disguised as news","The content is harmless satire"], ans:2 },
+  { q:"You notice that a news story has no author name, no publication date, and no links to any supporting evidence. These are signs that you should…",
+    opts:["Trust it immediately as it's clearly credible","Question it and look for corroboration","Share it widely","Assume it's harmless satire"], ans:1 },
+  { q:"A school newsletter reports on a charity fundraiser with student photographs, quotes from the headteacher, and an official school letterhead. What makes this information credible?",
+    opts:["It has no bias at all","It uses named sources, real evidence, and is published officially","It was posted on social media","It uses exciting, emotional language"], ans:1 },
+  { q:"You search for a news story and find three websites each reporting completely different facts. What should you conclude?",
+    opts:["All three versions are equally credible","The story needs more corroboration before you can trust any version","The story is definitely satire","You should trust the most exciting headline"], ans:1 },
+  { q:"A fake Wikipedia page claims 'Drinking water is dangerous and should be banned immediately.' It's designed to trick people into believing an untrue fact. What is this called?",
+    opts:["Misinformation","Editorial","Satire","Hoax"], ans:3 },
+  { q:"Why do fake news creators often use extreme emotions like fear, anger, or excitement in their headlines?",
+    opts:["To show that the story has been corroborated","To make readers act quickly and share without checking if it's true","To practice good netiquette","To build a credible digital identity"], ans:1 },
+  { q:"You read a story on The Guardian, then confirm the same facts on Sky News and a local newspaper. All three reports match. What does this tell you?",
+    opts:["The story is probably biased","The story is a hoax","The story is credible — it has been corroborated","The story is satire"], ans:2 },
+
+  // ── SECTION 2: PHISHING & ONLINE SCAMS (Q21–40) ──
+  { section:"🎣 Phishing & Online Scams",
+    q:"You get an email from 'PayPal' saying: 'Your account has been SUSPENDED! Verify your login details immediately or lose access forever.' What phishing tactic is the word 'immediately' an example of?",
+    opts:["Too good to be true","Urgency","Shortened URL","Typos"], ans:1 },
+  { q:"A website offers 'Win a brand-new iPhone for FREE — just enter your home address and bank card number to claim!' What phishing clue does this represent?",
+    opts:["Typos","Shortened URL","Too good to be true","Urgency"], ans:2 },
+  { q:"An email from 'Your Bank' reads: 'We need to varify you're accoount before it closes.' What phishing clue do the underlined spelling mistakes represent?",
+    opts:["Urgency","Shortened URL","Too good to be true","Typos"], ans:3 },
+  { q:"A link in a suspicious text reads 'tinyurl.com/xk9p3f' instead of a full website like 'www.barclays.co.uk'. What is this type of link called?",
+    opts:["Digital footprint","Anonymity marker","Shortened URL","Phishing bait phrase"], ans:2 },
+  { q:"Someone pretending to be your school's IT department emails you asking for your school account password to 'fix a technical glitch'. What is this type of trick called?",
+    opts:["Spam","Impersonation","Phishing","Digital drama"], ans:2 },
+  { q:"You receive 40 emails per day advertising 'miracle diet pills', 'cheap concert tickets', and 'guaranteed job offers' from unknown senders. What are these unwanted messages called?",
+    opts:["Phishing","Spam","Hoaxes","Editorials"], ans:1 },
+  { q:"A message reads: 'You have been randomly chosen to receive £1,000! Reply with your bank sort code within the next hour to claim.' What TWO phishing clues does this contain?",
+    opts:["Anonymity and satire","Too good to be true, and urgency","Typos and shortened URL","Bias and credibility"], ans:1 },
+  { q:"What is the safest thing to do when you receive an unexpected message asking for your password?",
+    opts:["Reply to ask whether it's real","Click the link to check your account","Delete it and tell a trusted adult","Forward it to friends to warn them"], ans:2 },
+  { q:"A classmate receives a text from 'Their School' saying: 'Reply with your student ID or you'll be removed from all registers.' What should they do?",
+    opts:["Reply immediately with their student ID","Ignore it and hope it goes away","Delete it and report it to a teacher or parent","Forward it to their whole class"], ans:2 },
+  { q:"An email link reads 'amaz0n-securelogin.biz/claim' instead of 'amazon.co.uk'. This is an example of:",
+    opts:["A credible, official link","A finsta","A suspicious phishing link with a fake domain","A safe shortened URL"], ans:2 },
+  { q:"You get a DM: 'Your profile has EXPIRED in 20 minutes. Click here: bit.ly/ur9acc now to reactivate!' What TWO phishing clues are present?",
+    opts:["Typos and media bias","Urgency and a shortened URL","Satire and misinformation","Corroboration and credibility"], ans:1 },
+  { q:"A contest asks for your grandmother's maiden name, your birthdate, and the name of your first primary school. Why is this dangerous?",
+    opts:["These are common password hints that scammers can use to access your accounts","These details help scammers write convincing satire","These reveal your vulnerability by showing you're alone","These details are needed to corroborate your identity"], ans:0 },
+  { q:"You receive: 'FREE GAMING HEADSET! Just pay £2.99 shipping — enter your card details to claim!' What type of internet trick is this?",
+    opts:["A legitimate media balance activity","A phishing/internet scam","A credible promotional offer","An example of good netiquette"], ans:1 },
+  { q:"What should you NEVER do when you receive a suspicious message from an unknown number?",
+    opts:["Tell a trusted adult","Delete the message","Block the sender","Click any links or reply with personal information"], ans:3 },
+  { q:"A scammer builds a fake 'Netflix' login page identical to the real one to steal usernames and passwords. What is this technique called?",
+    opts:["Spam","Hoax","Phishing","Impersonation"], ans:2 },
+  { q:"You notice an 'official' email from your bank uses a free Gmail address (e.g. bank_help@gmail.com) instead of the bank's official domain. What phishing clue is this?",
+    opts:["Urgency","Typos","A suspicious sender address — a major phishing red flag","Too good to be true"], ans:2 },
+  { q:"An online pop-up declares: 'You are the 1,000,000th visitor! Enter your full name and home address to claim your reward!' What type of internet trick is this?",
+    opts:["Good netiquette","Digital drama","An internet scam / phishing","Harmless satire"], ans:2 },
+  { q:"What is the main reason scammers use shortened URLs (like bit.ly links) in phishing messages?",
+    opts:["To make their message look more professional and trustworthy","To hide the true destination of the link so you can't see where it leads","To corroborate the email's content","To add urgency to their request"], ans:1 },
+  { q:"Which of the following is the BEST description of phishing?",
+    opts:["Sending too many unwanted bulk emails to a large group of people","Tricking someone into revealing personal information by pretending to be a trustworthy source","Accidentally spreading incorrect information without realising it","Posting online without revealing your real name or identity"], ans:1 },
+  { q:"A message reads: 'Instagram SECURITY ALERT: Your account shows suspicious activity. Click here to verify: ig-security.ru or it will be permanently deleted in 5 minutes.' Identify ALL the phishing clues present.",
+    opts:["Only urgency is a clue here","Only the domain name is suspicious","Urgency, a suspicious fake domain, and a threat of deletion — all are phishing clues","This message is actually credible"], ans:2 },
+
+  // ── SECTION 3: PRIVACY & PERSONAL SAFETY (Q41–55) ──
+  { section:"🔒 Privacy & Personal Safety",
+    q:"You set your Twitter account so that only people you manually approve can follow and view your posts. What tool are you using?",
+    opts:["Netiquette","Privacy settings","Curating","Media balance"], ans:1 },
+  { q:"A stranger in an online game asks for your full name, your age, and the name of your school. What type of information is being requested?",
+    opts:["Publicly available information","Private/personal identifying information","Satirical content","Corroborated information"], ans:1 },
+  { q:"You post a selfie where your school logo and name are clearly visible on your uniform. What risk does this create?",
+    opts:["It builds a healthy digital footprint","It tells strangers exactly where to find you","It's a positive example of curating","It improves your privacy settings"], ans:1 },
+  { q:"What does 'anonymity' mean in an online context?",
+    opts:["Using your real name and photo in your online profile","Setting your account to private mode","Communicating or posting without revealing your true identity","Cross-checking multiple sources before sharing information"], ans:2 },
+  { q:"You're choosing a gaming username. Which of the following is safest?",
+    opts:["JohnSmith_Age12_London","StarGamer_J7","john.smith@myschool.co.uk","JohnSmith_OakfieldPrimary"], ans:1 },
+  { q:"You receive a friend request from someone you have never met in real life. What is the safest action?",
+    opts:["Accept it — the more friends the better!","Ask for their personal details before deciding","Decline it and mention it to a trusted adult","Share their profile to ask if anyone knows them"], ans:2 },
+  { q:"A stranger online messages you: 'I know exactly where you go to school — I've seen your posts.' What should you do immediately?",
+    opts:["Reply and ask how they found out","Block them, take a screenshot, and tell a trusted adult immediately","Delete your account","Post about the incident on social media for advice"], ans:1 },
+  { q:"What is a 'finsta'?",
+    opts:["A phishing technique used by scammers","A fake or secondary private social media account for a close circle","A type of shortened URL","A digital wellbeing strategy"], ans:1 },
+  { q:"Why is it important to use different, strong passwords for each of your online accounts?",
+    opts:["It speeds up the login process","If one password is stolen, scammers can't use it to access your other accounts","It's a form of curating your digital identity","It helps maintain media balance"], ans:1 },
+  { q:"You casually mention to an online contact which specific bus route you take to school every morning. What type of risky information is this?",
+    opts:["Satirical content","A digital habit","Vulnerability information — it reveals your daily movements","Corroborated content"], ans:2 },
+  { q:"What is 'identity theft'?",
+    opts:["Changing your online username or display picture","Using someone else's stolen personal information to commit fraud in their name","Posting online without revealing your real identity","Blocking someone who is harassing you online"], ans:1 },
+  { q:"A stranger on Minecraft asks you to meet them at your local shopping centre without telling your parents or any adult. What is the ONLY appropriate response?",
+    opts:["Agree if they seem friendly enough","Go but bring a classmate for safety","Never agree to meet without first telling a trusted adult and having them present","Meet them briefly but leave after five minutes"], ans:2 },
+  { q:"You want to share exciting news about winning a school competition. Which approach is safest?",
+    opts:["Post your full name, school name, and home address publicly","Share the news directly with close friends and trusted family members","Post publicly with your exact location tagged","Include your school ID card in the photo"], ans:1 },
+  { q:"What does your 'digital footprint' refer to?",
+    opts:["The total hours you spend online each week","The permanent trail of data, posts, and activity you leave behind every time you go online","Your password hints and security questions","The number of followers or friends you have on social media"], ans:1 },
+  { q:"A website requires your home address to 'complete registration.' What should you do?",
+    opts:["Fill it in to access the website's content","Ask a trusted adult before entering any personal information","Use your school address as a safer alternative","It's just a website, so addresses are safe to share"], ans:1 },
+
+  // ── SECTION 4: DIGITAL WELLBEING & MEDIA BALANCE (Q56–70) ──
+  { section:"⚖️ Digital Wellbeing & Media Balance",
+    q:"Which of the following is the BEST example of 'media balance'?",
+    opts:["Playing video games for 8 hours straight on a Saturday","Watching one hour of videos, then reading a book and going for a cycle","Checking your phone every 5 minutes during class","Using social media until 1am every night"], ans:1 },
+  { q:"You feel genuinely panicked and anxious when you realise you've accidentally left your phone at home. What might this strong feeling be a sign of?",
+    opts:["Good media balance and healthy screen habits","A healthy, normal digital habit","An unhealthy relationship with your device — a red flag feeling","Effective and successful unplugging"], ans:2 },
+  { q:"What does 'unplugging' mean in the context of digital wellbeing?",
+    opts:["Charging your phone fully before using it","Permanently deleting all your social media accounts","Deliberately choosing to spend time doing screen-free offline activities","Setting your social media to private mode"], ans:2 },
+  { q:"You introduce a new household rule: 'No phones or tablets at the dinner table — ever.' What type of positive digital behaviour change is this?",
+    opts:["A phishing prevention strategy","Creating a replacement action and rule to build better digital habits","Corroboration of online information","De-escalating digital drama"], ans:1 },
+  { q:"You spend an entire Saturday indoors scrolling through social media instead of doing any physical activity, seeing friends, or pursuing hobbies. What type of behaviour is this?",
+    opts:["A healthy example of media balance","A positive digital habit","A negative digital habit","A form of unplugging"], ans:2 },
+  { q:"What is a 'digital wellbeing plan'?",
+    opts:["A strategy for spotting and avoiding phishing attacks","A personalised plan with goals, rules, and strategies for healthy and balanced screen use","A guide to curating your social media profile","A schedule for checking news sources for credibility"], ans:1 },
+  { q:"You ask a close friend to text you every evening to check whether you kept your phone away during study time. What strategy is this?",
+    opts:["Corroboration","Using a trusted peer for accountability","Curating your digital identity","De-escalating an online conflict"], ans:1 },
+  { q:"Which of these is a genuine example of 'unplugging'?",
+    opts:["Checking social media before bed instead of during it","Switching from your phone to your tablet to watch videos","Drawing in a sketchbook or kicking a ball outside instead of watching videos","Reading the news on your tablet rather than your phone"], ans:2 },
+  { q:"You notice you feel consistently grumpy, exhausted, and unfocused because you've been awake until midnight on your phone every night. What do these feelings indicate?",
+    opts:["You simply need more screen time to feel better","Red flags that your digital habits are negatively affecting your wellbeing","You have an excellent media balance","You need to curate your online content more carefully"], ans:1 },
+  { q:"What is an important first step in building better digital habits?",
+    opts:["Immediately deleting all your social media apps","Identifying your current habits and honestly recognising which ones are unhealthy","Buying a new device with parental controls","Blocking all online contacts"], ans:1 },
+  { q:"A student sets a screen-time limit on their phone, uses a physical alarm clock instead of their phone alarm, and charges their phone outside their bedroom overnight. What is this student doing?",
+    opts:["Preventing phishing attacks","De-escalating digital drama","Building a digital wellbeing plan with healthy replacement actions","Corroborating online information"], ans:2 },
+  { q:"You spend a full day hiking in nature with no phone signal and return home feeling refreshed, happy, and connected with friends. What does this suggest?",
+    opts:["You need to update your privacy settings urgently","Offline activities contribute significantly to mental wellbeing","You have developed a red flag feeling about technology","You need to urgently improve your digital identity"], ans:1 },
+  { q:"Which of the following is NOT a healthy digital habit?",
+    opts:["Taking regular 20-minute breaks away from screens","Turning off all notifications during homework time","Scrolling social media for 3 hours every night before trying to sleep","Choosing outdoor activities over screen time whenever possible"], ans:2 },
+  { q:"Why is having a 'digital wellbeing plan' important for Year 7 students?",
+    opts:["To learn advanced hacking techniques","To create and maintain a healthy, balanced, and positive relationship with technology","To become better at identifying phishing attacks","To help build and manage a finsta account"], ans:1 },
+  { q:"You decide to put your phone in a drawer every evening at 9pm and read a physical book until you sleep. What TWO concepts does this action demonstrate?",
+    opts:["Media balance and unplugging","Digital drama and identity theft prevention","Corroboration and credibility checking","Phishing prevention and anonymity"], ans:0 },
+
+  // ── SECTION 5: DIGITAL DRAMA & DE-ESCALATION (Q71–85) ──
+  { section:"💬 Digital Drama & De-escalation",
+    q:"A student posts 'Some people in Year 7 are really two-faced and fake' — within minutes, others start tagging people and writing mean comments. What is this type of online conflict called?",
+    opts:["Phishing","Digital drama","Satire","Misinformation"], ans:1 },
+  { q:"What does it mean to 'de-escalate' an online conflict?",
+    opts:["Sharing the argument with more people to get their opinions","Replying with an even angrier comment","Taking deliberate steps to calm the situation and reduce tension","Creating an anonymous account to continue arguing"], ans:2 },
+  { q:"You receive a mean comment on your science project poster shared online. What is the best de-escalation response?",
+    opts:["Post a meaner reply to defend yourself","Screenshot it and share it with your entire class","Respond calmly or suggest the conversation should happen in person, not online","Create a fake anonymous account to argue back"], ans:2 },
+  { q:"Why does digital drama spread much faster than in-person arguments?",
+    opts:["Because digital drama always involves fewer people","Because social media can reach a huge audience instantly, and people can hide behind screens or anonymous accounts","Because online platforms always use satire to spread arguments","Because all online accounts are completely anonymous"], ans:1 },
+  { q:"Two friends are arguing in a group chat about who caused a problem on a school project. You write 'Let's pause this — has anyone heard about the new school trip destinations?!' What strategy is this?",
+    opts:["Escalating the conflict further","Changing the subject to de-escalate the tension","Feeding the drama","Impersonating a trusted adult"], ans:1 },
+  { q:"A student is receiving hurtful comments on all their posts. What is the BEST first step to take?",
+    opts:["Reply to every single comment to defend themselves","Post more frequently to fight back","Tell a trusted adult and report/block the accounts responsible","Create an anonymous account to respond to the comments"], ans:2 },
+  { q:"What does the phrase 'don't feed the drama' mean in an online context?",
+    opts:["Avoid eating snacks while you browse social media","Don't respond to, share, or react to content that fuels an online argument","Immediately delete your social media accounts","Share the conflict with others to get more perspectives"], ans:1 },
+  { q:"A student takes a screenshot of a fight on Instagram and reposts it to Snapchat, saying 'Look at this drama!' What are they doing?",
+    opts:["Corroborating a news story","De-escalating the conflict","Escalating the drama by spreading it to a new platform","Curating their digital identity"], ans:2 },
+  { q:"Your friend posts something quite hurtful about another student online. What is the kindest and most responsible response?",
+    opts:["Like the post to show you support your friend","Share the post so more people are aware of it","Privately message your friend to discuss why the post could be hurtful","Leave an angry public reply calling them out"], ans:2 },
+  { q:"You see two classmates aggressively arguing in the comments of a shared video. What is the wisest thing to do?",
+    opts:["Add your own comments to support whichever side you agree with","Share the video to see what other people think","Avoid joining in, and report the content if it escalates to bullying","Screenshot it and post it to your own story for others to see"], ans:2 },
+  { q:"A friend messages you: 'Did you see what she wrote about you online?!' — what is the wisest response?",
+    opts:["Immediately check social media and react with maximum anger","Pause, take a breath, and respond calmly when you're ready — don't react in the heat of the moment","Forward the message immediately to everyone in your year group","Post about it publicly to gain sympathy and support"], ans:1 },
+  { q:"Which of the following is a clear example of de-escalating digital drama?",
+    opts:["Replying 'You're even worse than everyone says you are!'","Tagging more friends into the argument to join in","Writing 'I'm sorry if my post upset you — let's talk about this kindly in person' and removing mean comments","Creating a finsta account specifically to continue the argument anonymously"], ans:2 },
+  { q:"A classmate creates an entirely anonymous account with no profile photo, used solely for posting cruel comments about other students. What harmful behaviour is this?",
+    opts:["An innocent form of digital satire","Digital drama / cyberbullying via anonymous impersonation","Curating a secondary digital identity","Unplugging from social media responsibly"], ans:1 },
+  { q:"After trying to de-escalate politely, someone continues to be persistently mean and aggressive towards you online. What should you do?",
+    opts:["Match their tone and reply even more harshly","Start a public poll asking people to vote on who is right","Block them, report the behaviour to the platform, and inform a trusted adult","Create a second fake account to respond to them"], ans:2 },
+  { q:"You delete a thread of nasty comments from your post and replace it with: 'This space is for kindness and positivity. Please keep comments respectful!' What de-escalation approach is this?",
+    opts:["Ignoring the drama completely","Feeding the drama by drawing more attention to it","Setting clear, kind boundaries and removing negativity","Corroborating the comments"], ans:2 },
+
+  // ── SECTION 6: ONLINE IDENTITY, NETIQUETTE & BEHAVIOUR (Q86–100) ──
+  { section:"🧠 Online Identity, Netiquette & Behaviour",
+    q:"You carefully review your Instagram profile, choose only your most positive and thoughtful posts to keep, and delete anything that doesn't represent you well. What is this called?",
+    opts:["Phishing","Spamming","Curating your digital identity","Anonymity"], ans:2 },
+  { q:"What is 'netiquette'?",
+    opts:["A type of fishing technique used by online scammers","The agreed rules of polite, respectful, and considerate communication in online spaces","The controls that limit who can see your online content","A personalised digital wellbeing plan"], ans:1 },
+  { q:"You always write kind, thoughtful comments on your friends' work, never share other people's private messages without permission, and think before you post. What are you practising?",
+    opts:["Media balance","Corroboration","Netiquette","Anonymity"], ans:2 },
+  { q:"A classmate creates a fake social media profile using another student's real photos, name, and school — pretending to be them. What is this harmful act called?",
+    opts:["Curating","Anonymity","Phishing","Impersonation"], ans:3 },
+  { q:"What is meant by 'digital identity'?",
+    opts:["Your device's serial number and model","The way you present yourself and are perceived online through your posts, comments, username, and activity","Your password and login credentials","Your total screen time record for the year"], ans:1 },
+  { q:"Which of the following is a clear example of GOOD netiquette?",
+    opts:["Posting someone's embarrassing photo without asking their permission","Typing ALL IN CAPS to express frustration and anger","Responding to disagreements with polite and respectful language","Sharing someone's private messages on a public group"], ans:2 },
+  { q:"You create a second Instagram account under a nickname to share funny behind-the-scenes photos exclusively with your three closest friends. What is this type of account called?",
+    opts:["A spam account","A finsta","A phishing account","A curated editorial profile"], ans:1 },
+  { q:"A student always uses the username 'GuitarFan_K' online instead of their full real name. What online safety concept does this represent?",
+    opts:["Media balance","Anonymity","Phishing","Corroboration"], ans:1 },
+  { q:"Why might a person choose to use anonymity responsibly when exploring online communities?",
+    opts:["To steal personal information from others","To practise better netiquette","To protect their real identity while participating in discussions and communities","To create and fuel digital drama more easily"], ans:2 },
+  { q:"What does it mean to 'curate' your online content?",
+    opts:["Copy and share other people's posts without credit","Report harmful content to the platform for review","Carefully choose and organise what you share online to present the best version of yourself","Create several anonymous accounts across different platforms"], ans:2 },
+  { q:"A student always re-reads their messages once before sending to check the tone is kind, clear, and respectful. What are they practising?",
+    opts:["Phishing prevention","Good netiquette","Corroboration of information","De-escalation of drama"], ans:1 },
+  { q:"Which of the following is clearly an example of NEGATIVE online behaviour?",
+    opts:["Checking and updating your privacy settings regularly","Sharing personal content only with trusted friends","Posting someone's home address publicly online without their knowledge or consent","Using a pseudonym to protect your identity"], ans:2 },
+  { q:"You write 'Wow, that diagram is really creative and well-organised!' on a classmate's shared geography project. What is this an example of?",
+    opts:["Bias","Phishing","Positive netiquette","Digital drama"], ans:2 },
+  { q:"What is the 'Feelings & Options' thinking routine designed to help you do?",
+    opts:["Evaluate the credibility of online news sources","Handle uncomfortable or unsafe online situations by naming the problem, identifying how you feel, then listing safe responses","Create a personalised digital wellbeing plan","Identify and report phishing attempts in emails"], ans:1 },
+  { q:"Which single action BEST demonstrates responsible, healthy, and safe online behaviour overall?",
+    opts:["Sharing your personal details freely only with online strangers you've just met","Checking multiple sources before believing news, protecting your privacy at all times, and treating everyone online with kindness and respect","Posting everything anonymously and never telling any adults about problems online","Spending the maximum possible time online to stay as connected as possible"], ans:1 }
+];
+
+// ══════════════════════════════════════
+//  BUILD MCQ
+// ══════════════════════════════════════
+function buildMCQ() {
+  const container = document.getElementById('mcq-questions');
+  container.innerHTML = '';
+  let lastSection = '';
+  questions.forEach((q,i) => {
+    if (q.section && q.section !== lastSection) {
+      lastSection = q.section;
+      const div = document.createElement('div');
+      div.className = 'topic-divider';
+      div.textContent = q.section;
+      container.appendChild(div);
+    }
+    const block = document.createElement('div');
+    block.className = 'q-block';
+    block.id = 'q'+i;
+    const qNum = document.createElement('div');
+    qNum.className = 'q-number';
+    qNum.textContent = 'Question '+(i+1)+' of '+questions.length;
+    const qText = document.createElement('div');
+    qText.className = 'q-text';
+    qText.textContent = q.q;
+    const ul = document.createElement('ul');
+    ul.className = 'options';
+    q.opts.forEach((opt,j) => {
+      const li = document.createElement('li');
+      const label = document.createElement('label');
+      const radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'q'+i;
+      radio.value = j;
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(String.fromCharCode(65+j)+'. '+opt));
+      li.appendChild(label);
+      ul.appendChild(li);
+    });
+    const feedback = document.createElement('div');
+    feedback.className = 'q-feedback';
+    feedback.id = 'fb'+i;
+    block.appendChild(qNum);
+    block.appendChild(qText);
+    block.appendChild(ul);
+    block.appendChild(feedback);
+    container.appendChild(block);
+  });
+}
+
+buildMCQ();
+
+function submitMCQ() {
+  let score = 0;
+  let answered = 0;
+  questions.forEach((q,i) => {
+    const selected = document.querySelector('input[name="q'+i+'"]:checked');
+    const block = document.getElementById('q'+i);
+    const feedback = document.getElementById('fb'+i);
+    const labels = block.querySelectorAll('label');
+    // Remove previous classes
+    block.classList.remove('correct','wrong');
+    labels.forEach(l => l.classList.remove('correct-lbl','wrong-lbl'));
+    feedback.classList.remove('show','correct','wrong');
+    // Highlight correct answer
+    labels[q.ans].classList.add('correct-lbl');
+    if (selected) {
+      answered++;
+      const chosen = parseInt(selected.value);
+      if (chosen === q.ans) {
+        score++;
+        block.classList.add('correct');
+        feedback.textContent = '✅ Correct!';
+        feedback.classList.add('show','correct');
+      } else {
+        block.classList.add('wrong');
+        labels[chosen].classList.add('wrong-lbl');
+        feedback.textContent = '❌ Incorrect. The correct answer is: ' + String.fromCharCode(65+q.ans) + '. ' + q.opts[q.ans];
+        feedback.classList.add('show','wrong');
+      }
+    } else {
+      feedback.textContent = '⚠️ Not answered. The correct answer is: ' + String.fromCharCode(65+q.ans) + '. ' + q.opts[q.ans];
+      feedback.classList.add('show','wrong');
+      block.classList.add('wrong');
+    }
+  });
+  const pct = Math.round(score/questions.length*100);
+  let msg = '';
+  if (pct >= 90) msg = '🏆 Exceptional! You\'re exam-ready!';
+  else if (pct >= 75) msg = '🌟 Great work! Almost there!';
+  else if (pct >= 60) msg = '👍 Good effort! Keep reviewing!';
+  else msg = '📚 Keep practising — you\'ve got this!';
+  const box = document.getElementById('score-box');
+  box.textContent = '📊 Score: '+score+'/'+questions.length+' ('+pct+'%) — '+msg;
+  box.classList.add('show');
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function resetMCQ() {
+  document.querySelectorAll('input[type=radio]').forEach(r => r.checked = false);
+  document.querySelectorAll('.q-block').forEach(b => b.classList.remove('correct','wrong'));
+  document.querySelectorAll('label').forEach(l => l.classList.remove('correct-lbl','wrong-lbl'));
+  document.querySelectorAll('.q-feedback').forEach(f => { f.classList.remove('show','correct','wrong'); f.textContent=''; });
+  document.getElementById('score-box').classList.remove('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ══════════════════════════════════════
+//  TAB SWITCHING
+// ══════════════════════════════════════
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
